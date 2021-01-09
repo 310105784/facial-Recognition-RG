@@ -1,0 +1,38 @@
+server:
+  port: 8542
+
+
+#百度人脸识别配置
+baidu:
+  face:
+    #应用id
+    appId: ######################
+    #应用公钥
+    apiKey: ######################
+    #应用密钥
+    secretKey: ######################
+    #人脸搜索匹配阈值 低于此阈值则不返回数据 阈值越高检索速度也快
+    matchThreshold: 80
+    #图片质量控制 NONE:不进行控制   LOW:较低的质量要求   NORMAL:一般的质量要求   HIGH:较高的质量要求
+    qualityControl: NORMAL
+    #活体检测控制 NONE:不进行控制   LOW:较低的活体要求(高通过率 低攻击拒绝率)   NORMAL:一般的活体要求(平衡的攻击拒绝率, 通过率)   HIGH:较高的活体要求(高攻击拒绝率 低通过率)
+    livenessControl: NORMAL
+
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/alex_face?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    username: root
+    password: root
+  thymeleaf:
+    cache: false
+    mode: HTML5
+  mvc:
+    static-path-pattern: /statics/**
+
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage: com.alex.lrface.entity
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml

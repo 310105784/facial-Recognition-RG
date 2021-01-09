@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('登录')"/>
+    <style>
+        .footer {
+            position: absolute;
+            bottom: 0;
+            background: none repeat scroll 0 0 white;
+            border-top: 1px solid #e7eaec;
+            padding: 10px 20px;
+            width: 100%;
+            height: 36px;
+            color: #3c3c3c;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-primary">
+<div class="container">
+    <div class="row" style="height: 100px;"></div>
+    <div class="row">
+        <div class="col-md-4">
+            <div style="background-color:white;border-radius:10px;padding:20px;width: 400px;height: 400px;">
+                <video id="video" width="360px" height="360px" autoplay="autoplay"></video>
+                <canvas id="canvas" width="360px" height="360px" style="display:none;"></canvas>
+            </div>
+        </div>
+        <div class="col-md-3 col-md-offset-1">
+            <h1>登录</h1>
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" class="form-control" id="username" placeholder="Username">
+            </div>
+            <button type="submit" onclick="takePhoto()" class="btn btn-default">Submit</button>
+            <a href="/register" style="margin-left:20px;color: #3c3c3c;">没有账号？点击注册</a>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+</div>
+<div class="footer">
+    <div>© 2020 Alex Copyright</div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+
+    let video = document.getElementById("video");
+
+    function getUserMediaToPhoto(constraints, success, error) {
+        if (navigator.mediaDevices.getUserMedia) {
+            //最新标准API
+            navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
+        } else if (navigator.webkitGetUserMedia) {
+            //webkit核心浏览器
+            navigator.webkitGetUserMedia(constraints, success, error);
+        } else if (navigator.mozGetUserMedia) {
+            //firefox浏览器
+            navigator.mozGetUserMedia(constraints, success, error);
+        } else if (navigator.getUserMedia) {
+            //旧版API
+            navigator.getUserMedia(constraints, success, error);
+        }
+    }
+
+    //成功回调函数
+    function success(stream) {
+        //兼容webkit核心浏览器
+        var CompatibleURL = window.URL || window.webkitURL;
+        //将视频流转化为video的源
+        video.srcObject = stream;
+        video.play();//播放视频
+    }
+
+    function error(error) {
+        alert("访问用户媒体失败,请联系管理员!");
+    }
+
+    if (navigator.mediaDevices.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.getUserMedia) {
+        getUserMediaToPhoto({video: {width: 360, height: 360}, facingMode: "user"}, success, error);
+    } else {
+        alert("你的浏览器不支持访问用户媒体设备");
+    }
+
+
+    //拍照
+    function takePhoto() {
+        //获得Canvas对象
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, 360, 360);
+        var base64File = canvas.toDataURL();
+        //将数据装入FormDate
+        var formData = new FormData();
+        formData.append("userName", $("#username").val());
+        formData.append("file", base64File.substr(22));
+        console.log(base64File.substr(22))
+        $.ajax({
+            type: "post",
+            url: "/faceLogin",
+            data: formData,
+            contentType: false,
+            processData: false,
+            async: false,
+            success: function (result) {
+                alert(result.msg);
+                if (result.code == 0) {
+                    location.href = "/index";
+                }
+            },
+            error: function (error) {
+                console.log('error')
+            }
+        });
+
+    }
+</script>
+</body>
+</html>
